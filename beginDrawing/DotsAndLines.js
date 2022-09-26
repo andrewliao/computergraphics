@@ -13,12 +13,12 @@
 //  depicted in the CVV coord. system (+/-1, +/-1, +/-1) that fills our HTML5
 //  'canvas' object.
 // Each time the shader program runs, the GPU sets values for its 'attribute' 
-// variable(s) (e.g.	a_Position) from a single vertex stored in the VBO.
+// variable(s) (e.g.	a_Position) from a single vertex stored in the VBO. -> changed point size to be bigger 
 var VSHADER_SOURCE =
   `attribute vec4 a_Position;
    void main() {
      gl_Position = a_Position;
-     gl_PointSize = 10.0;
+     gl_PointSize = 20.0;
    }`
 // !!Wait-Wait-Wait!!  TEXTBOOK uses single-line strings for shader programs,
 //	then adds 'newline' and connects them together like this:
@@ -34,10 +34,10 @@ var VSHADER_SOURCE =
 //		 Where is it? just left of digit 1 on your US keyboard.
 
 // Fragment shader program
-//  Each instance computes all the on-screen attributes for just one PIXEL
+//  Each instance computes all the on-screen attributes for just one PIXEL -> changed to yellow color
 var FSHADER_SOURCE =
  `void main() {
-    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
   }`
 
 function main() {
@@ -65,8 +65,8 @@ function main() {
     return;
   }
 
-  // Specify the color for clearing <canvas>: (Northwestern purple)
-  gl.clearColor(78/255, 42/255, 132/255 , 1.0);	// R,G,B,A (A==opacity)
+  // Specify the color for clearing <canvas>: (Northwestern purple) -> changed to blue
+  gl.clearColor(50/255, 42/255, 132/255 , 1.0);	// R,G,B,A (A==opacity)
   // NOTE: 0.0 <= RGBA <= 1.0 
 
   // Clear <canvas>
@@ -74,7 +74,7 @@ function main() {
 
   // Draw connect-the-dots for 6 vertices (never 'vertexes'!!).
   // see http://www.khronos.org/opengles/sdk/docs/man/xhtml/glDrawArrays.xml
- gl.drawArrays(gl.LINE_LOOP, 0, n); // gl.drawArrays(mode, first, count)
+ gl.drawArrays(gl.LINE_LOOP, 0, 4); // gl.drawArrays(mode, first, count)
 			//mode: sets drawing primitive to use. WebGL offers these choices: 
 						// gl.POINTS
 						// gl.LINES, gl.LINE_STRIP, gl.LINE_LOOP, 
@@ -83,25 +83,52 @@ function main() {
 			// count; number of elements to read from the array.
 
   // That went well. Let's draw the dots themselves!
-  gl.drawArrays(gl.POINTS, 0, n); // gl.drawArrays(mode, first, count)
+  gl.drawArrays(gl.POINTS, 0, 4); // gl.drawArrays(mode, first, count)
 	// what happens if you draw triangles now?
 	
-	// STOP. Do nothing else. (What happens
+  // Drawing the rest of the points (8 total now) and 8 edges that go from z = 0 to z = 1
+
+  gl.drawArrays(gl.LINE_LOOP, 4, 4);
+
+  gl.drawArrays(gl.POINTS, 4, 4);
+
+
+  // Drawing 4 edges for when y = 1
+  gl.drawArrays(gl.LINE_LOOP, 8, 4);
+
+  // Drawing 4 edges for when y = 0
+  gl.drawArrays(gl.LINE_LOOP, 12, 4);
+
+  // total should have 8 points draw and 12 vertices
 }
+
 
 
 function initVertexBuffers(gl) {
 //==============================================================================
 // first, create a JavaScript array with all our vertex attribute values:
-  var vertices = new Float32Array([
-     0.0,  0.5, 0.0, 1.0,	// CAREFUL! I made these into 4D points/ vertices: x,y,z,w.
-    -0.2,  0.0, 0.0, 1.0,	// new point!  (? What happens if I make w=0 instead of 1.0?)
-    -0.5, -0.5, 0.0, 1.0, // new point! (note we need a trailing commas here)  
-     0.0, -0.2, 0.0, 1.0, 	
-     0.5, -0.5, 0.0, 1.0,	
-     0.2,  0.0, 0.0, 1.0, 
+  var vertices = new Float32Array([ 
+     0.0,  0.0,  0.0, 1.0,
+     0.0,  0.0,  1.0, 1.0,
+     0.0,  1.0,  0.0, 1.0,
+     0.0,  1.0,  1.0, 1.0,
+     1.0,  0.0,  0.0, 1.0,
+     1.0,  0.0,  1.0, 1.0,
+     1.0,  1.0,  0.0, 1.0,
+     1.0,  1.0,  1.0, 1.0,
+
+     0.0,  1.0,  0.0, 1.0,
+     0.0,  1.0,  1.0, 1.0,
+     1.0,  1.0,  0.0, 1.0,
+     1.0,  1.0,  1.0, 1.0,
+     
+     0.0,  0.0,  0.0, 1.0,
+     0.0,  0.0,  1.0, 1.0,
+     1.0,  0.0,  0.0, 1.0,
+     1.0,  0.0,  1.0, 1.0,
+
   ]);
-  var n = 6; // The number of vertices
+  var n = 16; // The number of vertices
 
   // Then in the GPU, create a vertex buffer object (VBO) to hold vertex data:
   var VBOloc = gl.createBuffer();	// get it's 'handle'
